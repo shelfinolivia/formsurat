@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surat Ijin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 600px;
+        }
+
+        h2{
+            text-align: center;
+        
+        }
+
+        .form-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        select{
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .btn1{
+            background-color: #4caf50;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn1:hover {
+            background-color: #3d8f41;
+        }
+
+        .btn2{
+            background-color: rgb(85, 85, 231);
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn2:hover {
+            background-color: rgb(52, 52, 160);
+        }
+
+        #ijinList {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        #ijinList th,
+        #ijinList td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        #ijinList th {
+            background-color: #f2f2f2;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Surat Ijin</h2>
+    <form>
+        <div class="form-group">
+            <label for="nama">Nama:</label>
+            <input type="text" id="nama" name="nama" required>
+        </div>
+
+        <div class="form-group">
+            <label for="kelas">Kelas:</label>
+            <input type="number" id="kelas" name="kelas" required>
+        </div>
+
+        <div class="form-group">
+            <label for="jurusan">Jurusan:</label>
+            <select type="text" name="jurusan" id="jurusan">
+                <option value="Pilih Jurusan">Pilih Jurusan</option>
+                <option value="RPL1">RPL 1</option>
+                <option value="RPL2">RPL 2</option>
+                <option value="TITL">TITL</option>  
+                <option value="TEI1">TEI 1</option>
+                <option value="TEI2">TEI 2</option>
+                <option value="TAV1">TAV 1</option>
+                <option value="TAV2">TAV 2</option>
+                <option value="TKRO1">TKRO 1</option>
+                <option value="TKRO2">TKRO 2</option>
+                <option value="TKRO3">TKRO 3</option>
+                <option value="TBSM1">TBSM 1</option>
+                <option value="TBSM2">TBSM 2</option>
+                <option value="TP1">TP 1</option>
+                <option value="TP2">TP 2</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="keterangan">Keterangan:</label>
+            <input type="text" id="ktg" name="ktg" required></input>
+        </div>
+
+
+        <button id="simpan" class="btn1">Simpan</button>
+        <button id="batal" class="btn2">Batal</button>
+
+    </form>
+    <table id="ijinList">
+        <thead>
+            <tr>
+                <th>Nama</th>
+                <th>Kelas</th>
+                <th>Jurusan</th>
+                <th>Keterangan</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody id="ijinTableBody"></tbody>
+    </table>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.querySelector("form");
+        const namaInput = document.getElementById("nama");
+        const kelasInput = document.getElementById("kelas");
+        const jurusanSelect = document.getElementById("jurusan");
+        const keteranganInput = document.getElementById("ktg");
+        const simpanButton = document.getElementById("simpan");
+        const batalButton = document.getElementById("batal");
+        const ijinTableBody = document.getElementById("ijinTableBody");
+
+        let ijinList = JSON.parse(localStorage.getItem('ijin')) || [];
+        let editedIndex = -1; // Untuk melacak indeks item yang akan diubah
+
+        displayIjin();
+
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const namaValue = namaInput.value;
+            const kelasValue = kelasInput.value;
+            const jurusanValue = jurusanSelect.value;
+            const keteranganValue = keteranganInput.value;
+
+            if (namaValue && kelasValue && jurusanValue && keteranganValue) {
+                if (editedIndex === -1) {
+                    // Jika tidak ada yang diedit, tambahkan entri baru
+                    const ijinData = {
+                        nama: namaValue,
+                        kelas: kelasValue,
+                        jurusan: jurusanValue,
+                        keterangan: keteranganValue
+                    };
+                    ijinList.push(ijinData);
+                } else {
+                    // Jika ada yang diedit, perbarui data pada indeks yang sesuai
+                    ijinList[editedIndex] = {
+                        nama: namaValue,
+                        kelas: kelasValue,
+                        jurusan: jurusanValue,
+                        keterangan: keteranganValue
+                    };
+                    editedIndex = -1; // Reset indeks yang akan diubah setelah update
+                }
+
+                saveToLocalStorage();
+                displayIjin();
+                resetForm();
+            } else {
+                alert("Silakan isi semua kolom");
+            }
+        });
+
+        simpanButton.addEventListener("click", function () {
+            form.dispatchEvent(new Event("submit"));
+        });
+
+        batalButton.addEventListener("click", function () {
+            resetForm();
+            editedIndex = -1; // Reset indeks yang akan diubah tanpa melakukan perubahan
+        });
+
+        function displayIjin() {
+            ijinTableBody.innerHTML = "";
+
+            ijinList.forEach((ijin, index) => {
+                const row = ijinTableBody.insertRow();
+
+                addCell(row, ijin.nama);
+                addCell(row, ijin.kelas);
+                addCell(row, ijin.jurusan);
+                addCell(row, ijin.keterangan);
+
+                const sendButton = createButton("Kirim", () => sendIjin(index));
+                const editButton = createButton("Edit", () => editIjin(index));
+                const updateButton = createButton("Update", () => updateIjin());
+                const cancelEditButton = createButton("Batal Edit", () => cancelEdit());
+
+                if (index === editedIndex) {
+                    appendButtons(row.insertCell(), updateButton, cancelEditButton);
+                } else {
+                    appendButtons(row.insertCell(), sendButton, editButton);
+                }
+            });
+        }
+
+        function sendIjin(index) {
+            const Okee = confirm("Data surat ijin anda telah terkirim")
+            if(Okee)
+            ijinList.splice(index, 1);
+            saveToLocalStorage();
+            displayIjin();
+        }
+
+        function editIjin(index) {
+            const ijin = ijinList[index];
+            namaInput.value = ijin.nama;
+            kelasInput.value = ijin.kelas;
+            jurusanSelect.value = ijin.jurusan;
+            keteranganInput.value = ijin.keterangan;
+
+            editedIndex = index; // Atur indeks yang akan diubah
+        }
+
+        function updateIjin() {
+            form.dispatchEvent(new Event("submit"));
+        }
+
+        function cancelEdit() {
+            resetForm();
+            editedIndex = -1; // Reset indeks yang akan diubah tanpa melakukan perubahan
+        }
+
+        function resetForm() {
+            form.reset();
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('ijin', JSON.stringify(ijinList));
+        }
+
+        function addCell(row, content) {
+            const cell = row.insertCell();
+            cell.innerHTML = content;
+        }
+
+        function createButton(text, clickHandler) {
+            const button = document.createElement("button");
+            button.innerHTML = text;
+            button.addEventListener("click", clickHandler);
+            return button;
+        }
+
+        function appendButtons(container, ...buttons) {
+            buttons.forEach(button => container.appendChild(button));
+        }
+    });
+</script>
+</body>
+</html>
